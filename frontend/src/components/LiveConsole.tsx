@@ -482,66 +482,61 @@ export default function LiveConsole({
           )}
 
           {/* Full Floating In-Call Controls Bar */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-slate-950/90 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-2xl border border-slate-700/60 max-w-[94%] overflow-x-auto">
+          <div className="lc-call-bar">
             {cam.status === "live" ? (
               <>
-                {/* 1. Snap Frame for Analysis */}
+                {/* 1. Snap Evidence Frame for Analysis */}
                 <button
                   type="button"
                   onClick={grab}
-                  className="btn btn-primary btn-sm flex items-center gap-1.5 px-3 py-1.5 shadow font-semibold bg-teal-600 hover:bg-teal-500"
+                  className="lc-call-btn lc-btn-snap"
                   title="Capture current camera view for AI inspection"
                 >
-                  <Camera size={15} />
-                  <span>Snap ({frames.length}/{MAX_FRAMES})</span>
+                  <Camera size={16} />
+                  <span>Snap Evidence</span>
+                  <span className="lc-snap-badge">{frames.length}/{MAX_FRAMES}</span>
                 </button>
 
                 {/* 2. Video Track Mute / Pause Toggle */}
                 <button
                   type="button"
                   onClick={cam.toggleMuteVideo}
-                  className={`btn btn-sm flex items-center gap-1.5 px-2.5 py-1.5 ${
-                    cam.isVideoMuted
-                      ? "bg-amber-600 hover:bg-amber-500 text-white"
-                      : "bg-slate-800 hover:bg-slate-700 text-white border-slate-600"
-                  }`}
-                  title={cam.isVideoMuted ? "Resume video transmission" : "Mute video transmission"}
+                  className={`lc-call-btn ${cam.isVideoMuted ? "lc-btn-muted" : "lc-btn-media"}`}
+                  title={cam.isVideoMuted ? "Resume video stream" : "Turn off video stream"}
                 >
-                  {cam.isVideoMuted ? <VideoOff size={15} /> : <Video size={15} />}
-                  <span className="hidden sm:inline">{cam.isVideoMuted ? "Unmute Video" : "Video"}</span>
+                  {cam.isVideoMuted ? <VideoOff size={16} /> : <Video size={16} />}
+                  <span className="lc-call-label">{cam.isVideoMuted ? "Video Off" : "Video On"}</span>
                 </button>
 
                 {/* 3. Audio Mic Toggle (Speech-to-Text / PTT) */}
                 <button
                   type="button"
                   onClick={toggleListening}
-                  className={`btn btn-sm flex items-center gap-1.5 px-2.5 py-1.5 transition ${
+                  className={`lc-call-btn ${
                     isListening || ptt.state === "recording"
-                      ? "bg-rose-600 hover:bg-rose-700 text-white animate-pulse"
-                      : "bg-slate-800 hover:bg-slate-700 text-white border-slate-600"
+                      ? "lc-btn-listening"
+                      : "lc-btn-media"
                   }`}
                   title={isListening ? "Listening... click to stop" : "Speak to AI"}
                 >
-                  {isListening || ptt.state === "recording" ? <MicOff size={15} /> : <Mic size={15} />}
-                  <span className="hidden sm:inline">{isListening || ptt.state === "recording" ? "Mute Mic" : "Mic"}</span>
+                  {isListening || ptt.state === "recording" ? <MicOff size={16} /> : <Mic size={16} />}
+                  <span className="lc-call-label">
+                    {isListening || ptt.state === "recording" ? "Listening…" : "Mute Mic"}
+                  </span>
                 </button>
 
                 {/* 4. Auto-Scan Toggle */}
                 <button
                   type="button"
                   onClick={() => setAutoScan((v) => !v)}
-                  className={`btn btn-sm flex items-center gap-1.5 px-2.5 py-1.5 ${
-                    autoScan
-                      ? "bg-cyan-700 text-white border-cyan-500"
-                      : "bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700"
-                  }`}
+                  className={`lc-call-btn lc-btn-autoscan ${autoScan ? "active" : ""}`}
                   title={autoScan ? "Disable auto vision scanning" : "Enable continuous AI vision scanning"}
                 >
-                  <Eye size={15} className={autoScan ? "text-cyan-300 animate-pulse" : ""} />
-                  <span className="hidden md:inline">Auto-Scan</span>
+                  <Eye size={16} className={autoScan ? "text-cyan-300 animate-pulse" : ""} />
+                  <span className="lc-call-label">Auto-Scan</span>
                 </button>
 
-                {/* 5. Switch Source (Webcam <-> Demo Feed or flip camera) */}
+                {/* 5. Switch Source (Webcam <-> Demo Feed) */}
                 <button
                   type="button"
                   onClick={() => {
@@ -551,22 +546,25 @@ export default function LiveConsole({
                       cam.startDemoFeed();
                     }
                   }}
-                  className="btn btn-sm flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700"
+                  className="lc-call-btn lc-btn-switch"
                   title="Switch between Webcam and Demo Feed"
                 >
-                  <RefreshCw size={14} />
-                  <span className="hidden lg:inline">{cam.streamSource === "demo" ? "Use Webcam" : "Use Demo"}</span>
+                  <RefreshCw size={15} />
+                  <span className="lc-call-label">{cam.streamSource === "demo" ? "Use Webcam" : "Use Demo"}</span>
                 </button>
 
-                {/* 6. End / Stop Call */}
+                {/* Visual Divider */}
+                <div className="lc-call-divider" />
+
+                {/* 6. End Call Button (Distinct Red Hang-Up Pill) */}
                 <button
                   type="button"
                   onClick={cam.stop}
-                  className="btn btn-sm flex items-center gap-1.5 px-2.5 py-1.5 bg-rose-700 hover:bg-rose-600 text-white rounded-lg ml-1"
+                  className="lc-call-btn lc-btn-end"
                   title="End video call"
                 >
-                  <PhoneOff size={14} />
-                  <span className="hidden sm:inline">End</span>
+                  <PhoneOff size={16} />
+                  <span>End Call</span>
                 </button>
               </>
             ) : (
@@ -575,19 +573,19 @@ export default function LiveConsole({
                   type="button"
                   onClick={() => cam.start()}
                   disabled={cam.status === "starting" || disabled}
-                  className="btn btn-primary btn-sm flex items-center gap-1.5 px-3 py-1.5 font-semibold"
+                  className="lc-call-btn lc-btn-snap"
                 >
-                  <Video size={15} />
+                  <Video size={16} />
                   <span>Turn On Webcam</span>
                 </button>
                 <button
                   type="button"
                   onClick={cam.startDemoFeed}
                   disabled={cam.status === "starting" || disabled}
-                  className="btn btn-secondary btn-sm flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 text-slate-200 border-slate-700"
+                  className="lc-call-btn lc-btn-media"
                 >
-                  <Sparkles size={14} className="text-teal-400" />
-                  <span>Start Demo Feed</span>
+                  <Sparkles size={15} className="text-teal-400" />
+                  <span>Start Demo Call</span>
                 </button>
               </>
             )}
