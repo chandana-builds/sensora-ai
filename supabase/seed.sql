@@ -1,0 +1,2 @@
+-- Seed data for local Sensora AI Supabase environment.
+-- Runs automatically on `supabase db reset`.

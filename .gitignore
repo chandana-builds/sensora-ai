@@ -1,0 +1,14 @@
+.env
+.env.*
+!.env.example
+!.env*.example
+*.db
+*.db-wal
+*.db-shm
+__pycache__/
+.venv/
+node_modules/
+dist/
+*.zip
+.legacy_tests/
+.dev_data/

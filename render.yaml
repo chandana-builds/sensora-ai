@@ -1,0 +1,38 @@
+# Render Blueprint for the FastAPI backend. Secrets are entered in the Render dashboard (sync: false); none are stored here.
+services:
+  - type: web
+    name: sensora-api
+    runtime: python
+    plan: free                      # sleeps after ~15 min idle; first request can take ~30-60 s (cold start); ephemeral disk
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips='*'
+    healthCheckPath: /api/health/live
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: ENV
+        value: production
+      - key: STORAGE_BACKEND
+        value: supabase
+      - key: AI_MODE
+        value: auto                 # real Meta models when MODEL_API_KEY is set, otherwise clearly labelled DEMO
+      - key: ALLOW_ANONYMOUS_DEMO
+        value: "true"               # public guest demo; set "false" to require Supabase accounts
+      - key: APP_SECRET
+        generateValue: true         # signs guest tokens
+      - key: MAX_TURNS_PER_DAY      # cost guard per user
+        value: "60"
+      - key: EVIDENCE_RETENTION_DAYS
+        value: "30"
+      - key: ALLOWED_ORIGINS        # exact Vercel origin, e.g. https://sensora.vercel.app (no trailing slash, no wildcard)
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: MODEL_API_KEY          # Meta Model API key
+        sync: false
