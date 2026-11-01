@@ -1,6 +1,12 @@
 // Typed API calls. Auth: Bearer token from lib/auth.ts (guest token or Supabase account).
 import { authHeaders, refreshSession, signOut } from "../lib/auth";
-const BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? "";
+const BASE = (
+  (import.meta.env.VITE_API_URL as string | undefined) ??
+  (import.meta.env.VITE_API_BASE_URL as string | undefined) ??
+  (typeof window !== "undefined" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1"
+    ? "https://sensora-ai.onrender.com"
+    : "")
+).replace(/\/$/, "");
 
 export class ApiError extends Error {
   constructor(message: string, public status: number, public code?: string, public retryable = false) { super(message); }

@@ -26,13 +26,21 @@ services:
         value: "60"
       - key: EVIDENCE_RETENTION_DAYS
         value: "30"
-      - key: ALLOWED_ORIGINS        # exact Vercel origin, e.g. https://sensora.vercel.app (no trailing slash, no wildcard)
-        sync: false
+      - key: ALLOWED_ORIGINS        # exact Vercel origin (no trailing slash)
+        value: "https://sensora-eight.vercel.app,http://localhost:5173"
       - key: SUPABASE_URL
-        sync: false
+        value: "https://vkkwwrkaovkaeqkdojbl.supabase.co"
       - key: SUPABASE_ANON_KEY
-        sync: false
+        value: "sb_publishable_ZvsgAd9UDeCK2nEThAmccA_NRbyCdKy"
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
-      - key: MODEL_API_KEY          # Meta Model API key
+      - key: GEMINI_MODEL
+        value: "gemini-2.5-flash"
+      - key: GROQ_REASONING_MODEL
+        value: "openai/gpt-oss-120b"
+      - key: AI_PROVIDER_ORDER
+        value: "gemini,groq"
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
         sync: false

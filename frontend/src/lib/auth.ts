@@ -1,8 +1,19 @@
 // Auth without extra dependencies: guest tokens (signed by our backend) or Supabase email/password via its public REST API.
 // Only public values are used here. Tokens live in localStorage (see docs/PRD.md).
-const API = ((import.meta.env.VITE_API_BASE_URL as string | undefined) ?? (import.meta.env.VITE_API_URL as string | undefined) ?? "").replace(/\/$/, "");
-const SUPA = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.replace(/\/$/, "");
-const SUPA_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+const API = (
+  (import.meta.env.VITE_API_BASE_URL as string | undefined) ??
+  (import.meta.env.VITE_API_URL as string | undefined) ??
+  (typeof window !== "undefined" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1"
+    ? "https://sensora-ai.onrender.com"
+    : "")
+).replace(/\/$/, "");
+const SUPA = (
+  (import.meta.env.VITE_SUPABASE_URL as string | undefined) ??
+  "https://vkkwwrkaovkaeqkdojbl.supabase.co"
+).replace(/\/$/, "");
+const SUPA_KEY =
+  (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ??
+  "sb_publishable_ZvsgAd9UDeCK2nEThAmccA_NRbyCdKy";
 const KEY = "sensora_auth_v1";
 
 export interface AuthState {

@@ -3,8 +3,13 @@ import type {
   SafetyAssessment, SessionCreated, SessionDetail, SessionPage, SessionStatus, Session,
 } from "../types";
 
-export const API_BASE_URL: string =
-  ((import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "http://localhost:8000").replace(/\/$/, "");
+export const API_BASE_URL: string = (
+  (import.meta.env.VITE_API_BASE_URL as string | undefined) ??
+  (import.meta.env.VITE_API_URL as string | undefined) ??
+  (typeof window !== "undefined" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1"
+    ? "https://sensora-ai.onrender.com"
+    : "http://localhost:8000")
+).replace(/\/$/, "");
 
 const CLIENT_ID_KEY = "sensora.clientId";
 let memoryClientId: string | null = null;
