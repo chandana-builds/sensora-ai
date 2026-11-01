@@ -48,8 +48,8 @@
 }
 .lc-cam-call video {
   width: 100%;
-  min-height: 340px;
-  max-height: 480px;
+  min-height: 330px;
+  max-height: 450px;
   background: #020617;
   object-fit: cover;
   display: block;
@@ -57,8 +57,8 @@
 .lc-photo-studio {
   background: #090d16;
   padding: 1.75rem 1.25rem;
-  min-height: 340px;
-  max-height: 480px;
+  min-height: 330px;
+  max-height: 450px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -87,10 +87,16 @@
   flex-wrap: wrap;
   margin-top: 8px;
 }
+.lc-history-photo-card {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 3px;
+}
 .lc-history-photo {
-  height: 74px;
+  height: 78px;
   width: auto;
-  min-width: 74px;
+  min-width: 78px;
   object-fit: cover;
   border-radius: 8px;
   border: 1px solid rgba(0, 0, 0, 0.15);
@@ -99,47 +105,57 @@
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .lc-history-photo:hover {
-  transform: scale(1.05);
+  transform: scale(1.04);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+.lc-photo-tag {
+  font-size: 0.65rem;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 /* =========================================================================
-   Professional Video Call In-Call Controls Bar
+   Dedicated In-Call Video Controls Dock (Below Video Screen)
    ========================================================================= */
-.lc-call-bar {
-  position: absolute;
-  bottom: 1.15rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 30;
+.lc-call-dock {
+  background: #090d16;
+  border-top: 1px solid #1e293b;
+  padding: 0.85rem 1rem;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
-  background: rgba(15, 23, 42, 0.94);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  padding: 0.5rem 0.85rem;
-  border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.35);
-  max-width: 95%;
-  white-space: nowrap;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
-/* Call bar buttons - strictly override generic .lc button styles */
-.lc .lc-call-bar button.lc-call-btn,
-.lc-call-btn {
+.lc-call-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.6rem;
+}
+
+.lc-call-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Specific dock button styles - strongly isolate from .lc button */
+.lc .lc-call-dock button.lc-dock-btn,
+.lc-dock-btn {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 0.45rem !important;
-  height: 38px !important;
-  padding: 0 0.85rem !important;
-  border-radius: 9999px !important;
-  font-size: 0.82rem !important;
+  gap: 0.5rem !important;
+  height: 42px !important;
+  padding: 0.55rem 0.95rem !important;
+  border-radius: 10px !important;
+  font-size: 0.83rem !important;
   font-weight: 600 !important;
-  letter-spacing: 0.015em !important;
+  letter-spacing: 0.01em !important;
   cursor: pointer !important;
   transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
   white-space: nowrap !important;
@@ -147,127 +163,111 @@
   background: #1e293b !important;
   color: #f1f5f9 !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25) !important;
-  text-decoration: none !important;
 }
 
-.lc .lc-call-bar button.lc-call-btn:hover:not(:disabled) {
-  background: #334155 !important;
-  border-color: rgba(255, 255, 255, 0.28) !important;
+.lc .lc-call-dock button.lc-dock-btn:hover:not(:disabled) {
   transform: translateY(-1px) !important;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35) !important;
 }
 
-/* 1. Snap Evidence Frame Action */
-.lc .lc-call-bar button.lc-btn-snap {
+/* 1. Snap Evidence */
+.lc .lc-call-dock button.lc-btn-snap {
   background: linear-gradient(135deg, #0d9488 0%, #0b6e5e 100%) !important;
   border-color: #14b8a6 !important;
   color: #ffffff !important;
-  padding: 0 1.1rem !important;
-  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.45) !important;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.35) !important;
 }
-.lc .lc-call-bar button.lc-btn-snap:hover:not(:disabled) {
+.lc .lc-call-dock button.lc-btn-snap:hover:not(:disabled) {
   background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%) !important;
   border-color: #2dd4bf !important;
-  box-shadow: 0 6px 18px rgba(20, 184, 166, 0.55) !important;
-}
-.lc-snap-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 9999px;
-  font-size: 0.72rem;
-  padding: 0.1rem 0.45rem;
-  font-weight: 700;
-  margin-left: 0.2rem;
+  box-shadow: 0 6px 16px rgba(20, 184, 166, 0.45) !important;
 }
 
-/* 2. Media Controls (Video & Mic) */
-.lc .lc-call-bar button.lc-btn-media {
+/* 2. Media ON / OFF */
+.lc .lc-call-dock button.lc-btn-media-on {
   background: #1e293b !important;
   border-color: #334155 !important;
-  color: #f1f5f9 !important;
+  color: #f8fafc !important;
 }
-.lc .lc-call-bar button.lc-btn-muted {
-  background: rgba(239, 68, 68, 0.2) !important;
+.lc .lc-call-dock button.lc-btn-media-on:hover:not(:disabled) {
+  background: #334155 !important;
+  border-color: #475569 !important;
+}
+
+.lc .lc-call-dock button.lc-btn-media-off {
+  background: rgba(239, 68, 68, 0.18) !important;
   border-color: rgba(239, 68, 68, 0.5) !important;
   color: #fca5a5 !important;
 }
-.lc .lc-call-bar button.lc-btn-muted:hover {
-  background: rgba(239, 68, 68, 0.3) !important;
+.lc .lc-call-dock button.lc-btn-media-off:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.28) !important;
 }
 
 /* 3. Speaking / Listening Pulse */
-.lc .lc-call-bar button.lc-btn-listening {
+.lc .lc-call-dock button.lc-btn-listening {
   background: #dc2626 !important;
   border-color: #ef4444 !important;
   color: #ffffff !important;
   animation: callPulse 1.4s infinite !important;
 }
 
+.lc .lc-call-dock button.lc-btn-stop-speaking {
+  background: #b91c1c !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
+  animation: callPulse 1.4s infinite !important;
+}
+.lc .lc-call-dock button.lc-btn-stop-speaking:hover:not(:disabled) {
+  background: #991b1b !important;
+}
+
 /* 4. Auto-Scan */
-.lc .lc-call-bar button.lc-btn-autoscan {
+.lc .lc-call-dock button.lc-btn-autoscan {
   background: #1e293b !important;
   border-color: #334155 !important;
   color: #94a3b8 !important;
 }
-.lc .lc-call-bar button.lc-btn-autoscan.active {
+.lc .lc-call-dock button.lc-btn-autoscan.active {
   background: #0891b2 !important;
   border-color: #06b6d4 !important;
   color: #ffffff !important;
   box-shadow: 0 0 14px rgba(6, 182, 212, 0.45) !important;
 }
 
-/* 5. Switch Source */
-.lc .lc-call-bar button.lc-btn-switch {
-  background: #1e293b !important;
-  border-color: #334155 !important;
-  color: #cbd5e1 !important;
+/* 5. Major Action: Stop Video & Send to AI Chat */
+.lc .lc-call-dock button.lc-btn-stop-send {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  padding: 0.65rem 1.25rem !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4) !important;
+}
+.lc .lc-call-dock button.lc-btn-stop-send:hover:not(:disabled) {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  border-color: #60a5fa !important;
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.55) !important;
 }
 
-/* Vertical Divider */
-.lc-call-divider {
-  width: 1px;
-  height: 22px;
-  background: rgba(255, 255, 255, 0.2);
-  margin: 0 0.15rem;
-}
-
-/* 6. End Call Button (Clear, Red, Isolated) */
-.lc .lc-call-bar button.lc-btn-end {
+/* 6. End Call Button */
+.lc .lc-call-dock button.lc-btn-end {
   background: #dc2626 !important;
   border-color: #ef4444 !important;
   color: #ffffff !important;
-  padding: 0 1.15rem !important;
   font-weight: 700 !important;
-  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.5) !important;
+  padding: 0.65rem 1.25rem !important;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.45) !important;
 }
-.lc .lc-call-bar button.lc-btn-end:hover:not(:disabled) {
+.lc .lc-call-dock button.lc-btn-end:hover:not(:disabled) {
   background: #b91c1c !important;
   border-color: #dc2626 !important;
-  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.7) !important;
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.65) !important;
 }
 
 @keyframes callPulse {
   0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
-  70% { transform: scale(1.03); box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }
+  70% { transform: scale(1.02); box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }
   100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
-}
-
-@media (max-width: 680px) {
-  .lc-call-bar {
-    gap: 0.35rem;
-    padding: 0.4rem 0.55rem;
-  }
-  .lc .lc-call-bar button.lc-call-btn {
-    height: 36px !important;
-    padding: 0 0.6rem !important;
-    font-size: 0.76rem !important;
-  }
-  .lc-call-label {
-    display: none;
-  }
 }
 
 /* General Layout & Chat Elements */

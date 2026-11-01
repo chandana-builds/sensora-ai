@@ -7,10 +7,13 @@ import {
   MicOff,
   PhoneOff,
   RefreshCw,
+  Send,
   Sparkles,
   Upload,
   Video,
   VideoOff,
+  Volume2,
+  VolumeX,
   AlertTriangle,
 } from "lucide-react";
 import { ApiError, getAiStatus, transcribe, type AIStatus } from "../api/live";
@@ -300,6 +303,22 @@ export default function LiveConsole({
     }
   }
 
+  // Stop video, capture current frame, and send directly to AI chat field
+  const stopVideoAndSend = useCallback(async () => {
+    if (!cam.videoRef.current) {
+      cam.stop();
+      return;
+    }
+    try {
+      const frame = captureFrame(cam.videoRef.current);
+      cam.stop();
+      void send("Here is a video capture of my device for inspection.", [frame], "text");
+    } catch (e) {
+      cam.stop();
+      fail(e);
+    }
+  }, [cam, send]);
+
   // Auto-trigger initial diagnostic turn
   useEffect(() => {
     if (initialTurnTriggered.current) return;
@@ -480,117 +499,125 @@ export default function LiveConsole({
               )}
             </div>
           )}
+        </div>
 
-          {/* Full Floating In-Call Controls Bar */}
-          <div className="lc-call-bar">
-            {cam.status === "live" ? (
-              <>
-                {/* 1. Snap Evidence Frame for Analysis */}
+        {/* Dedicated Video Call Controls Dock (Below Video Screen) */}
+        {mediaMode === "video" && cam.status === "live" && (
+          <div className="lc-call-dock">
+            <div className="lc-call-grid">
+              {/* 1. On / Off Video */}
+              <button
+                type="button"
+                onClick={cam.toggleMuteVideo}
+                className={`lc-dock-btn ${cam.isVideoMuted ? "lc-btn-media-off" : "lc-btn-media-on"}`}
+                title={cam.isVideoMuted ? "Turn camera video back on" : "Turn camera video off"}
+              >
+                {cam.isVideoMuted ? <VideoOff size={16} /> : <Video size={16} />}
+                <span>{cam.isVideoMuted ? "Video: Off" : "Video: On"}</span>
+              </button>
+
+              {/* 2. Mute / Unmute Mic */}
+              <button
+                type="button"
+                onClick={toggleListening}
+                className={`lc-dock-btn ${
+                  isListening || ptt.state === "recording"
+                    ? "lc-btn-listening"
+                    : "lc-btn-media-on"
+                }`}
+                title={isListening ? "Stop listening / Mute mic" : "Speak to AI (Unmute Mic)"}
+              >
+                {isListening || ptt.state === "recording" ? <MicOff size={16} /> : <Mic size={16} />}
+                <span>{isListening || ptt.state === "recording" ? "Mic: Recording" : "Mic: Live"}</span>
+              </button>
+
+              {/* 3. Stop Speaking (AI TTS) */}
+              {tts.speaking ? (
                 <button
                   type="button"
-                  onClick={grab}
-                  className="lc-call-btn lc-btn-snap"
-                  title="Capture current camera view for AI inspection"
+                  onClick={tts.stop}
+                  className="lc-dock-btn lc-btn-stop-speaking"
+                  title="Stop AI spoken audio immediately"
                 >
-                  <Camera size={16} />
-                  <span>Snap Evidence</span>
-                  <span className="lc-snap-badge">{frames.length}/{MAX_FRAMES}</span>
+                  <VolumeX size={16} />
+                  <span>Stop Speaking</span>
                 </button>
-
-                {/* 2. Video Track Mute / Pause Toggle */}
-                <button
-                  type="button"
-                  onClick={cam.toggleMuteVideo}
-                  className={`lc-call-btn ${cam.isVideoMuted ? "lc-btn-muted" : "lc-btn-media"}`}
-                  title={cam.isVideoMuted ? "Resume video stream" : "Turn off video stream"}
-                >
-                  {cam.isVideoMuted ? <VideoOff size={16} /> : <Video size={16} />}
-                  <span className="lc-call-label">{cam.isVideoMuted ? "Video Off" : "Video On"}</span>
-                </button>
-
-                {/* 3. Audio Mic Toggle (Speech-to-Text / PTT) */}
+              ) : (
                 <button
                   type="button"
                   onClick={toggleListening}
-                  className={`lc-call-btn ${
-                    isListening || ptt.state === "recording"
-                      ? "lc-btn-listening"
-                      : "lc-btn-media"
-                  }`}
-                  title={isListening ? "Listening... click to stop" : "Speak to AI"}
+                  className="lc-dock-btn lc-btn-media-on"
+                  title="Speak to Sensora AI"
                 >
-                  {isListening || ptt.state === "recording" ? <MicOff size={16} /> : <Mic size={16} />}
-                  <span className="lc-call-label">
-                    {isListening || ptt.state === "recording" ? "Listening…" : "Mute Mic"}
-                  </span>
+                  <Volume2 size={16} />
+                  <span>Speak to AI</span>
                 </button>
+              )}
 
-                {/* 4. Auto-Scan Toggle */}
-                <button
-                  type="button"
-                  onClick={() => setAutoScan((v) => !v)}
-                  className={`lc-call-btn lc-btn-autoscan ${autoScan ? "active" : ""}`}
-                  title={autoScan ? "Disable auto vision scanning" : "Enable continuous AI vision scanning"}
-                >
-                  <Eye size={16} className={autoScan ? "text-cyan-300 animate-pulse" : ""} />
-                  <span className="lc-call-label">Auto-Scan</span>
-                </button>
+              {/* 4. Quick Snaps / Picture Frames */}
+              <button
+                type="button"
+                onClick={grab}
+                className="lc-dock-btn lc-btn-snap"
+                title="Capture instant frame to attach to message"
+              >
+                <Camera size={16} />
+                <span>Quick Snap ({frames.length}/{MAX_FRAMES})</span>
+              </button>
 
-                {/* 5. Switch Source (Webcam <-> Demo Feed) */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (cam.streamSource === "demo") {
-                      cam.start();
-                    } else {
-                      cam.startDemoFeed();
-                    }
-                  }}
-                  className="lc-call-btn lc-btn-switch"
-                  title="Switch between Webcam and Demo Feed"
-                >
-                  <RefreshCw size={15} />
-                  <span className="lc-call-label">{cam.streamSource === "demo" ? "Use Webcam" : "Use Demo"}</span>
-                </button>
+              {/* 5. Auto-Scan Vision */}
+              <button
+                type="button"
+                onClick={() => setAutoScan((v) => !v)}
+                className={`lc-dock-btn lc-btn-autoscan ${autoScan ? "active" : ""}`}
+                title="Toggle continuous visual scanning"
+              >
+                <Eye size={16} className={autoScan ? "text-cyan-300 animate-pulse" : ""} />
+                <span>{autoScan ? "Auto-Scan: ON" : "Auto-Scan: OFF"}</span>
+              </button>
 
-                {/* Visual Divider */}
-                <div className="lc-call-divider" />
+              {/* 6. Switch Source */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (cam.streamSource === "demo") {
+                    cam.start();
+                  } else {
+                    cam.startDemoFeed();
+                  }
+                }}
+                className="lc-dock-btn lc-btn-media-on"
+                title="Switch between Webcam and Interactive Demo stream"
+              >
+                <RefreshCw size={15} />
+                <span>{cam.streamSource === "demo" ? "Use Webcam" : "Use Demo Stream"}</span>
+              </button>
+            </div>
 
-                {/* 6. End Call Button (Distinct Red Hang-Up Pill) */}
-                <button
-                  type="button"
-                  onClick={cam.stop}
-                  className="lc-call-btn lc-btn-end"
-                  title="End video call"
-                >
-                  <PhoneOff size={16} />
-                  <span>End Call</span>
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  onClick={() => cam.start()}
-                  disabled={cam.status === "starting" || disabled}
-                  className="lc-call-btn lc-btn-snap"
-                >
-                  <Video size={16} />
-                  <span>Turn On Webcam</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={cam.startDemoFeed}
-                  disabled={cam.status === "starting" || disabled}
-                  className="lc-call-btn lc-btn-media"
-                >
-                  <Sparkles size={15} className="text-teal-400" />
-                  <span>Start Demo Call</span>
-                </button>
-              </>
-            )}
+            {/* Major Action Row: Stop Video & Send to AI Chat + End Call */}
+            <div className="lc-call-row-actions">
+              <button
+                type="button"
+                onClick={stopVideoAndSend}
+                className="lc-dock-btn lc-btn-stop-send flex-1"
+                title="Stop video, capture current frame, and send directly to AI chat"
+              >
+                <Send size={16} />
+                <span>Stop Video & Send to AI Chat</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={cam.stop}
+                className="lc-dock-btn lc-btn-end"
+                title="End video call without sending"
+              >
+                <PhoneOff size={16} />
+                <span>End Call</span>
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Photo Studio Window (kept in DOM with toggle display) */}
         <div
@@ -680,14 +707,16 @@ export default function LiveConsole({
               {l.images && l.images.length > 0 && (
                 <div className="lc-line-photos">
                   {l.images.map((imgSrc, idx) => (
-                    <img
-                      key={idx}
-                      src={imgSrc}
-                      alt={`Attached photo ${idx + 1}`}
-                      className="lc-history-photo"
-                      onClick={() => window.open(imgSrc, "_blank")}
-                      title="Click to view full photo"
-                    />
+                    <div key={idx} className="lc-history-photo-card">
+                      <img
+                        src={imgSrc}
+                        alt={`Captured frame ${idx + 1}`}
+                        className="lc-history-photo"
+                        onClick={() => window.open(imgSrc, "_blank")}
+                        title="Click to view full photo"
+                      />
+                      <span className="lc-photo-tag">📹 Captured Frame</span>
+                    </div>
                   ))}
                 </div>
               )}
